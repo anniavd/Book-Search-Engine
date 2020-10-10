@@ -47,7 +47,7 @@ const resolvers = {
       return { token, user };
     },
     
-    saveBooks:async(parent,args,context)=>{
+    saveBooks:async(parent,{book},context)=>{
       if (context.user) {
       const book =await Book.create({...args,username:context.user.username });
      
@@ -59,7 +59,7 @@ const resolvers = {
       return book
     }
     },
-    removeBook:async(parent,args,context)=>{
+    removeBook:async(parent,{bookId},context)=>{
     if(context.user){
       //How work in user-controller 
       /*await User.findOneAndUpdate(

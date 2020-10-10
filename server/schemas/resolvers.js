@@ -10,7 +10,7 @@ const resolvers = {
       if (context.user) {
         const userData = await User.findOne({ _id: context.user._id })
           .select('-__v -password')
-          .populate('saveBook')
+          .populate('saveBooks')
 
         return userData;
       }
@@ -18,7 +18,7 @@ const resolvers = {
       throw new AuthenticationError('Not logged in');
     },
     users: async () => {
-      return User.find()
+      return User.find();
       
     },
   },
@@ -46,16 +46,31 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
+    
     saveBooks:async(parent,args,context)=>{
       if (context.user) {
       const book =await Book.create({...args,username:context.user.username });
      
       await User.findByIdAndUpdate(
-        {_id:context.user._id}
+        { _id: user._id },
+        { $addToSet: { savedBooks: body } },
+        { new: true, runValidators: true }
       )
       return book
     }
+    },
+    removeBook:async(parent,args,context)=>{
+    if(context.user){
+      //How work in user-controller 
+      /*await User.findOneAndUpdate(
+        { _id: user._id },
+        { $pull: { savedBooks: { bookId: params.bookId } } },
+        { new: true }
+      );*/
+    }  
+
     }
+  
   }
 
 

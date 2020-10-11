@@ -1,4 +1,4 @@
-const { User} = require('../models');
+const { User } = require('../models');
 const { AuthenticationError } = require('apollo-server-express');
 const { signToken } = require('../utils/auth');
 
@@ -19,7 +19,7 @@ const resolvers = {
     },
     users: async () => {
       return User.find();
-      
+
     },
   },
   Mutation: {
@@ -46,31 +46,32 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
-    
-    saveBooks:async(parent,{book},context)=>{
-      if (context.user) {
-      const book =await Book.create({...args,username:context.user.username });
-     
-      await User.findByIdAndUpdate(
-        { _id: user._id },
-        { $addToSet: { savedBooks: body } },
-        { new: true, runValidators: true }
-      )
-      return book
-    }
-    },
-    removeBook:async(parent,{bookId},context)=>{
-    if(context.user){
-      //How work in user-controller 
-      /*await User.findOneAndUpdate(
-        { _id: user._id },
-        { $pull: { savedBooks: { bookId: params.bookId } } },
-        { new: true }
-      );*/
-    }  
 
+    saveBook: async (parent, { book }, context) => {
+      
+      if (context.user) {
+        const updUSer =  await User.findByIdAndUpdate(       
+          { _id: context.user._id},
+          { $push: { savedBooks: book } },
+          { new: true }
+         
+        )
+        return updUSer;
+      }
+    },
+
+    removeBook: async (parent, { bookId }, context) => {
+
+      if (context.user) {     
+        const remove = await User.findOneAndUpdate(
+          { _id:context.user._id},
+          { $pull: { saveBooks: {bookId } } },
+          { new: true }
+        )
+        return remove;
+      }
     }
-  
+
   }
 
 

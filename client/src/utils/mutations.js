@@ -41,5 +41,5 @@ mutation saveBook($book: BookInput!) {
 }
 `;
 
-export const REMOVE_BOOK =gql`
-`;
+/*export const REMOVE_BOOK =gql`
+`;*/

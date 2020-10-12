@@ -1,44 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
-import Auth from '../utils/auth';
+//import { getMe, deleteBook } from '../utils/API';
+//import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
+
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { REMOVE_BOOK } from '../utils/mutations';
+import { GET_ME } from '../utils/queries';
+
 const SavedBooks = () => {
-  const [userData, setUserData] = useState({});
+  // const [userData, setUserData] = useState({});
 
   // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
+  //const userDataLength = Object.keys(userData).length;
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-        if (!token) {
-          return false;
-        }
+  const { loading, data: userData } = useQuery(GET_ME);
 
-        const response = await getMe(token);
+  // works but needs browser refresh to update view
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
 
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const handleDeleteBook = async (bookId) => {
 
-    getUserData();
-  }, [userDataLength]);
+    try {
+      await removeBook({ variables: { bookId: bookId } });
+
+      // upon success, remove book's id from localStorage
+      removeBookId(bookId);
+    } catch (err) {
+      console.error(err);
+    }
+
+  };
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
-  const handleDeleteBook = async (bookId) => {
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
+  /* const handleDeleteBook = async (bookId) => {
+
+
+   const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
       return false;
@@ -58,45 +60,52 @@ const SavedBooks = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }
+   }; */
+
+
+
 
   // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
-
+  console.log('datos', userData)
   return (
-    <>
+    <React.Fragment>
       <Jumbotron fluid className='text-light bg-dark'>
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
       </Jumbotron>
-      <Container>
-        <h2>
-          {userData.savedBooks.length
-            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
-            : 'You have no saved books!'}
-        </h2>
-        <CardColumns>
-          {userData.savedBooks.map((book) => {
-            return (
-              <Card key={book.bookId} border='dark'>
-                {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
-                <Card.Body>
-                  <Card.Title>{book.title}</Card.Title>
-                  <p className='small'>Authors: {book.authors}</p>
-                  <Card.Text>{book.description}</Card.Text>
-                  <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
-                    Delete this Book!
+      {userData ?
+        (
+          <Container>
+            <h2>
+              {userData.me.savedBooks.length?
+               (  `Viewing ${userData.me.savedBooks.length} saved ${userData.me.savedBooks.length === 1 ? 'book' : 'books'}:`
+               ): ('You have no saved books!')}
+            </h2>
+            <CardColumns>
+              {userData.me.savedBooks.map((book) => {
+                return (
+                  <Card key={book.bookId} border='dark'>
+                    {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
+                    <Card.Body>
+                      <Card.Title>{book.title}</Card.Title>
+                      <p className='small'>Authors: {book.authors}</p>
+                      <Card.Text>{book.description}</Card.Text>
+                      <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
+                        Delete this Book!
                   </Button>
-                </Card.Body>
-              </Card>
-            );
-          })}
-        </CardColumns>
-      </Container>
-    </>
+                    </Card.Body>
+                  </Card>
+                );
+              })}
+            </CardColumns>
+          </Container>
+        ) : null}
+    </React.Fragment>
   );
 };
 

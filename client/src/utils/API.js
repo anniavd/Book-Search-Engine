@@ -8,7 +8,7 @@ export const getMe = (token) => {
   });
 };
 
-export const createUser = (userData) => {
+/*export const createUser = (userData) => {
   return fetch('/api/users', {
     method: 'POST',
     headers: {
@@ -48,7 +48,7 @@ export const deleteBook = (bookId, token) => {
       authorization: `Bearer ${token}`,
     },
   });
-};
+};*/
 
 // make a search to google books api
 // https://www.googleapis.com/books/v1/volumes?q=harry+potter

@@ -1,25 +1,15 @@
 import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
-
-//import { getMe, deleteBook } from '../utils/API';
-//import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
-
 
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { REMOVE_BOOK } from '../utils/mutations';
 import { GET_ME } from '../utils/queries';
 
 const SavedBooks = () => {
-  // const [userData, setUserData] = useState({});
-
-  // use this to determine if `useEffect()` hook needs to run again
-  //const userDataLength = Object.keys(userData).length;
-
-
+  
   const { loading, data } = useQuery(GET_ME);
 
-  // works but needs browser refresh to update view
   const [removeBook] = useMutation(REMOVE_BOOK);
 
   const userData = data?.me || {};

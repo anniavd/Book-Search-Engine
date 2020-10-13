@@ -17,16 +17,17 @@ const SavedBooks = () => {
   //const userDataLength = Object.keys(userData).length;
 
 
-  const { loading, data: userData } = useQuery(GET_ME);
+  const { loading, data } = useQuery(GET_ME);
 
   // works but needs browser refresh to update view
   const [removeBook] = useMutation(REMOVE_BOOK);
 
+  const userData = data?.me || {};
 
   const handleDeleteBook = async (bookId) => {
-
+    console.log('click delete',bookId)
     try {
-      await removeBook({ variables: { bookId: bookId } });
+     const {data}= await removeBook({ variables: { bookId } });
 
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
@@ -36,36 +37,7 @@ const SavedBooks = () => {
 
   };
 
-  // create function that accepts the book's mongo _id value as param and deletes the book from the database
-  /* const handleDeleteBook = async (bookId) => {
-
-
-   const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const response = await deleteBook(bookId, token);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-   }; */
-
-
-
-
+  
   // if data isn't here yet, say so
   if (loading) {
     return <h2>LOADING...</h2>;
@@ -82,12 +54,12 @@ const SavedBooks = () => {
         (
           <Container>
             <h2>
-              {userData.me.savedBooks.length?
-               (  `Viewing ${userData.me.savedBooks.length} saved ${userData.me.savedBooks.length === 1 ? 'book' : 'books'}:`
-               ): ('You have no saved books!')}
+              {userData.savedBooks.length?
+                 `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
+               : ('You have no saved books!')}
             </h2>
             <CardColumns>
-              {userData.me.savedBooks.map((book) => {
+              {userData.savedBooks.map((book) => {
                 return (
                   <Card key={book.bookId} border='dark'>
                     {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
